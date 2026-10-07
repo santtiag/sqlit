@@ -12,10 +12,24 @@
         "undo": "ctrl+z",
         "redo": "ctrl+y"
       },
-      "navigation": {
-        "focus_explorer": "e",
-        "focus_query": "q",
-        "focus_results": "r"
+      "pane_nav": {
+        "pane_left": [
+          "h",
+          "left"
+        ],
+        "pane_down": [
+          "j",
+          "down"
+        ],
+        "pane_up": [
+          "k",
+          "up"
+        ],
+        "pane_right": [
+          "l",
+          "right"
+        ],
+        "enter_pane": "enter"
       },
       "tree": {
         "new_connection": "n",
@@ -48,7 +62,8 @@
           "k",
           "up"
         ],
-        "tree_filter": "/"
+        "tree_filter": "/",
+        "exit_pane": "escape"
       },
       "tree_filter": {
         "tree_filter_close": "escape",
@@ -98,7 +113,8 @@
         "enter_visual_line_mode": "V",
         "delete_char": "x",
         "append_insert_mode": "a",
-        "append_line_end": "A"
+        "append_line_end": "A",
+        "exit_pane": "escape"
       },
       "query_insert": {
         "exit_insert_mode": "escape",
@@ -211,7 +227,8 @@
         ],
         "next_result_section": "tab",
         "prev_result_section": "shift+tab",
-        "toggle_result_section": "z"
+        "toggle_result_section": "z",
+        "exit_pane": "escape"
       },
       "results_filter": {
         "results_filter_close": "escape",

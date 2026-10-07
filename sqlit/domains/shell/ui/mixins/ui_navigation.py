@@ -14,6 +14,16 @@ from .ui_status import UIStatusMixin
 if TYPE_CHECKING:
     pass
 
+# (focused pane, direction) -> pane to move to. Explorer sits on the left,
+# Query above Results on the right.
+_PANE_MOVES: dict[tuple[str, str], str] = {
+    ("explorer", "right"): "query",
+    ("query", "left"): "explorer",
+    ("query", "down"): "results",
+    ("results", "left"): "explorer",
+    ("results", "up"): "query",
+}
+
 
 class UINavigationMixin(UIStatusMixin, UILeaderMixin):
     """Mixin providing UI navigation and vim mode functionality."""
@@ -36,8 +46,52 @@ class UINavigationMixin(UIStatusMixin, UILeaderMixin):
         elif mode == "explorer":
             self.screen.add_class("explorer-fullscreen")
 
+    def _set_pane_nav(self: UINavigationMixinHost, value: bool) -> None:
+        """Switch between pane navigation (True) and being inside a pane (False)."""
+        self._pane_nav = value
+        self.screen.set_class(value, "pane-nav")
+        self._update_vim_mode_visuals()
+        self._update_footer_bindings()
+
+    def _pane_move(self: UINavigationMixinHost, direction: str) -> None:
+        """Select the neighbouring pane, staying in pane navigation."""
+        pane = self._get_focus_pane()
+        if pane == "none":
+            pane = self._last_active_pane or "explorer"
+        target = _PANE_MOVES.get((pane, direction))
+        if target is None:
+            return
+        getattr(self, f"action_focus_{target}")()
+        self._set_pane_nav(True)
+
+    def action_pane_left(self: UINavigationMixinHost) -> None:
+        """Select the pane to the left."""
+        self._pane_move("left")
+
+    def action_pane_down(self: UINavigationMixinHost) -> None:
+        """Select the pane below."""
+        self._pane_move("down")
+
+    def action_pane_up(self: UINavigationMixinHost) -> None:
+        """Select the pane above."""
+        self._pane_move("up")
+
+    def action_pane_right(self: UINavigationMixinHost) -> None:
+        """Select the pane to the right."""
+        self._pane_move("right")
+
+    def action_enter_pane(self: UINavigationMixinHost) -> None:
+        """Enter the selected pane so its own keys apply."""
+        self._set_pane_nav(False)
+
+    def action_exit_pane(self: UINavigationMixinHost) -> None:
+        """Leave the pane and go back to pane navigation."""
+        self._clear_count_buffer()
+        self._set_pane_nav(True)
+
     def action_focus_explorer(self: UINavigationMixinHost) -> None:
         """Focus the Explorer pane."""
+        self._set_pane_nav(False)
         self._clear_count_buffer()  # Clear any pending count prefix
         if self._fullscreen_mode != "none":
             self._set_fullscreen_mode("none")
@@ -54,6 +108,7 @@ class UINavigationMixin(UIStatusMixin, UILeaderMixin):
         """Focus the Query pane (in NORMAL mode)."""
         from sqlit.core.vim import VimMode
 
+        self._set_pane_nav(False)
         self._clear_count_buffer()  # Clear any pending count prefix
         if self._fullscreen_mode != "none":
             self._set_fullscreen_mode("none")
@@ -64,6 +119,7 @@ class UINavigationMixin(UIStatusMixin, UILeaderMixin):
 
     def action_focus_results(self: UINavigationMixinHost) -> None:
         """Focus the Results pane."""
+        self._set_pane_nav(False)
         self._clear_count_buffer()  # Clear any pending count prefix
         if self._fullscreen_mode != "none":
             self._set_fullscreen_mode("none")

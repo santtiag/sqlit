@@ -101,7 +101,10 @@ class UIStatusMixin:
 
         def set_title(pane: Any, key: str, label: str, *, active: bool) -> None:
             label = escape(label)
-            if active and dialog_open:
+            if not key:
+                # No direct focus key bound: plain title, no \[key] hint
+                pane.border_title = f"[$primary]{label}[/]" if active else label
+            elif active and dialog_open:
                 # Active pane with dialog: key matches border (disabled), title stays primary
                 # Border reverts to default (active-pane class removed)
                 pane.border_title = f"[$border]\\[{key}][/] [$primary]{label}[/]"
@@ -115,9 +118,9 @@ class UIStatusMixin:
         from sqlit.core.keymap import format_key, get_keymap
 
         km = get_keymap()
-        explorer_key = format_key(km.action("focus_explorer") or "e")
-        query_key = format_key(km.action("focus_query") or "q")
-        results_key = format_key(km.action("focus_results") or "r")
+        explorer_key = format_key(km.action("focus_explorer") or "")
+        query_key = format_key(km.action("focus_query") or "")
+        results_key = format_key(km.action("focus_results") or "")
 
         set_title(pane_explorer, explorer_key, explorer_label, active=active_pane == "explorer")
         query_label_builder = getattr(self, "_query_document_label", None)
@@ -146,7 +149,7 @@ class UIStatusMixin:
         # Update CSS classes for border and cursor color
         # Only show vim mode colors when query pane has focus
         query_area.remove_class("vim-normal", "vim-insert", "vim-visual", "vim-visual-line")
-        if has_query_focus:
+        if has_query_focus and not getattr(self, "_pane_nav", False):
             if self.vim_mode == VimMode.NORMAL:
                 query_area.add_class("vim-normal")
             elif self.vim_mode == VimMode.VISUAL:
@@ -229,7 +232,11 @@ class UIStatusMixin:
         mode_str = ""
         mode_plain = ""
         try:
-            if self.query_input.has_focus:
+            if getattr(self, "_pane_nav", False):
+                normal_color, _ = self._get_mode_colors()
+                mode_str = f"[bold #1e1e1e on {normal_color}] NAV [/]  "
+                mode_plain = " NAV   "
+            elif self.query_input.has_focus:
                 normal_color, insert_color = self._get_mode_colors()
                 if self.vim_mode == VimMode.NORMAL:
                     mode_str = f"[bold #1e1e1e on {normal_color}] NORMAL [/]  "

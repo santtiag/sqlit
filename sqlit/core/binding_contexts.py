@@ -10,6 +10,10 @@ def get_binding_contexts(ctx: InputContext) -> set[str]:
     """Determine which keybinding contexts should be active."""
     contexts = {"global", "navigation"}
 
+    if ctx.pane_nav:
+        contexts.add("pane_nav")
+        return contexts
+
     if ctx.focus == "explorer":
         contexts.add("tree")
     if ctx.tree_visual_mode_active:

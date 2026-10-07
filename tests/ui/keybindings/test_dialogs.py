@@ -28,7 +28,7 @@ class TestDialogKeybindings:
     async def test_normal_actions_blocked_when_error_dialog_open(self):
         """Normal navigation/actions should be blocked when an error dialog is open."""
         keymap = get_keymap()
-        focus_query_key = keymap.action("focus_query")
+        focus_query_key = keymap.action("pane_right")
 
         app = _make_app()
 
@@ -196,7 +196,7 @@ class TestDialogKeybindings:
     async def test_help_dialog_blocks_normal_actions(self):
         """Help dialog should block normal actions like focus changes."""
         keymap = get_keymap()
-        focus_explorer_key = keymap.action("focus_explorer")
+        focus_explorer_key = keymap.action("pane_left")
 
         app = _make_app()
 

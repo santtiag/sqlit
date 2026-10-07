@@ -50,6 +50,7 @@ from sqlit.domains.shell.state.help_doc import HelpSection
 from sqlit.domains.shell.state.leader_pending import LeaderPendingState
 from sqlit.domains.shell.state.main_screen import MainScreenState
 from sqlit.domains.shell.state.modal_active import ModalActiveState
+from sqlit.domains.shell.state.pane_nav import PaneNavState
 from sqlit.domains.shell.state.root import RootState
 
 STATE_TO_HELP_SECTION: dict[str, str] = {
@@ -74,6 +75,7 @@ STATE_TO_HELP_SECTION: dict[str, str] = {
     "ValueViewTreeModeState": "results",
     "ValueViewSyntaxModeState": "results",
     "LeaderPendingState": "command_menu",
+    "PaneNavState": "navigation",
 }
 
 
@@ -88,6 +90,7 @@ class UIStateMachine:
         self.main_screen = MainScreenState(parent=self.root)
 
         self.leader_pending = LeaderPendingState(parent=self.main_screen)
+        self.pane_nav = PaneNavState(parent=self.main_screen)
 
         self.tree_focused = TreeFocusedState(parent=self.main_screen)
         self.tree_filter_active = TreeFilterActiveState(parent=self.main_screen)
@@ -115,6 +118,7 @@ class UIStateMachine:
         self._states = [
             self.modal_active,
             self.leader_pending,
+            self.pane_nav,  # Before every pane state (pane selected, not entered)
             self.tree_filter_active,  # Before tree_focused (more specific when filter active)
             self.tree_visual_mode,  # Before multi-select (visual mode takes precedence)
             self.tree_multi_select,  # Before connection/table/etc when multi-select active
@@ -213,9 +217,12 @@ class UIStateMachine:
 
         # NAVIGATION
         s = HelpSection(id="navigation", title="NAVIGATION")
-        s.binding(k("focus_explorer", "e"), "Focus Explorer pane")
-        s.binding(k("focus_query", "q"), "Focus Query pane")
-        s.binding(k("focus_results", "r"), "Focus Results pane")
+        s.binding(
+            ks([("pane_left", "h"), ("pane_down", "j"), ("pane_up", "k"), ("pane_right", "l")]),
+            "Move between panes",
+        )
+        s.binding(k("enter_pane", "<enter>"), "Enter the selected pane")
+        s.binding(k("exit_pane", "<esc>"), "Back to pane navigation")
         s.binding(leader_key, "Open command menu")
         s.binding(k("show_help", "?"), "Show this help")
         sections.append(s)

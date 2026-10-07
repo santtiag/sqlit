@@ -20,6 +20,8 @@ class TreeVisualModeState(State):
         )
         # Block entering visual mode when already in visual mode
         self.forbids("enter_tree_visual_mode")
+        # Escape leaves visual mode first, whatever the keymap order
+        self.forbids("exit_pane")
         self.allows(
             "move_connection_to_folder",
             label="Move",

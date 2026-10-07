@@ -83,6 +83,7 @@ class QueryNormalModeState(State):
         # Visual modes
         self.allows("enter_visual_mode", label="Visual", help="Enter visual mode")
         self.allows("enter_visual_line_mode", label="Visual Line", help="Enter visual line mode")
+        self.allows("exit_pane", help="Back to pane navigation")
 
     def get_display_bindings(self, app: InputContext) -> tuple[list[DisplayBinding], list[DisplayBinding]]:
         left: list[DisplayBinding] = []

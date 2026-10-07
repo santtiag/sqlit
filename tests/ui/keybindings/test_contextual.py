@@ -24,41 +24,43 @@ class TestContextualKeybindings:
     """Test that keybindings only work in their intended context."""
 
     @pytest.mark.asyncio
-    async def test_focus_explorer_key_when_query_focused(self):
-        """Focus explorer key should focus explorer when query panel is focused."""
+    async def test_pane_left_key_when_query_selected(self):
+        """Pane-left key should select explorer when the query pane is selected."""
         keymap = get_keymap()
-        focus_explorer_key = keymap.action("focus_explorer")
+        pane_left_key = keymap.action("pane_left")
 
         app = _make_app()
 
         async with app.run_test(size=(100, 35)) as pilot:
-            # Focus query first
+            # Select query first, then leave it for pane navigation
             app.action_focus_query()
+            app.action_exit_pane()
             await pilot.pause()
             assert app.query_input.has_focus
 
-            # Press focus explorer key
-            await pilot.press(focus_explorer_key)
+            # Press pane-left key
+            await pilot.press(pane_left_key)
             await pilot.pause()
 
             assert app.object_tree.has_focus
 
     @pytest.mark.asyncio
-    async def test_focus_query_key_when_explorer_focused(self):
-        """Focus query key should focus query when explorer is focused."""
+    async def test_pane_right_key_when_explorer_selected(self):
+        """Pane-right key should select query when the explorer pane is selected."""
         keymap = get_keymap()
-        focus_query_key = keymap.action("focus_query")
+        pane_right_key = keymap.action("pane_right")
 
         app = _make_app()
 
         async with app.run_test(size=(100, 35)) as pilot:
-            # Focus explorer first
+            # Select explorer first, then leave it for pane navigation
             app.action_focus_explorer()
+            app.action_exit_pane()
             await pilot.pause()
             assert app.object_tree.has_focus
 
-            # Press focus query key
-            await pilot.press(focus_query_key)
+            # Press pane-right key
+            await pilot.press(pane_right_key)
             await pilot.pause()
 
             assert app.query_input.has_focus

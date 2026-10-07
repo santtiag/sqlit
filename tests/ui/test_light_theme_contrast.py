@@ -49,6 +49,7 @@ async def test_command_mode_uses_contrasting_theme_primary(theme_name: str) -> N
 
     async with app.run_test() as pilot:
         await pilot.pause()
+        app.action_enter_pane()  # no NAV badge in front of the command text
         app._command_mode = True
         app._command_buffer = "theme"
         app._update_status_bar()

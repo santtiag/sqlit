@@ -39,6 +39,7 @@ class ResultsFocusedState(State):
         self.allows("results_column_picker", has_results)  # vim f/F
         self.allows("next_result_section", has_results, label="Next result", help="Next result section")
         self.allows("prev_result_section", has_results, label="Prev result", help="Previous result section")
+        self.allows("exit_pane", help="Back to pane navigation")
 
     def get_display_bindings(self, app: InputContext) -> tuple[list[DisplayBinding], list[DisplayBinding]]:
         # No bindings when there are no results

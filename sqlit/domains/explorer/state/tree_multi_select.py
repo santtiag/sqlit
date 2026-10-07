@@ -17,6 +17,8 @@ class TreeMultiSelectState(State):
             label="Clear",
             help="Clear selection",
         )
+        # Escape clears the selection first, whatever the keymap order
+        self.forbids("exit_pane")
         self.allows(
             "move_connection_to_folder",
             label="Move",

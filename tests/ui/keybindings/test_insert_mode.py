@@ -68,7 +68,7 @@ class TestInsertModeKeybindings:
     async def test_navigation_blocked_in_insert_mode(self):
         """Navigation keys should be blocked in INSERT mode."""
         keymap = get_keymap()
-        focus_explorer_key = keymap.action("focus_explorer")
+        pane_left_key = keymap.action("pane_left")
 
         app = _make_app()
 
@@ -82,8 +82,8 @@ class TestInsertModeKeybindings:
             assert app.vim_mode == VimMode.INSERT
             assert app.query_input.has_focus
 
-            # Try to navigate with focus explorer key - should NOT switch focus
-            await pilot.press(focus_explorer_key)
+            # Try to navigate with the pane-left key - should NOT switch focus
+            await pilot.press(pane_left_key)
             await pilot.pause()
 
             # Should still be in query with insert mode

@@ -123,6 +123,13 @@
         border-title-color: $primary;
     }
 
+    /* Pane navigation: the pane is selected but not entered */
+    Screen.pane-nav #sidebar.active-pane,
+    Screen.pane-nav #query-area.active-pane,
+    Screen.pane-nav #results-area.active-pane {
+        border: heavy $primary;
+    }
+
     /* Vim mode cursor styling */
     #query-area.vim-normal TextArea > .text-area--cursor {
         /* Block cursor for NORMAL mode - warm beige */

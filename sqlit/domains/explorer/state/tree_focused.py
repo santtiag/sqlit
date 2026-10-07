@@ -19,6 +19,7 @@ class TreeFocusedState(State):
         self.allows("tree_cursor_down")  # vim j
         self.allows("tree_cursor_up")  # vim k
         self.allows("tree_filter", help="Filter items")
+        self.allows("exit_pane", help="Back to pane navigation")
         self.allows(
             "enter_tree_visual_mode",
             lambda app: app.tree_node_kind is not None,

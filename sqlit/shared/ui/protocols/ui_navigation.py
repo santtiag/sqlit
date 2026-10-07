@@ -22,6 +22,7 @@ class UIStateProtocol(Protocol):
     _leader_pending: bool
     _leader_pending_menu: str
     _last_active_pane: str | None
+    _pane_nav: bool
     _state_machine: Any
     _active_database: str | None
     _query_target_database: str | None
@@ -39,6 +40,12 @@ class UINavigationActionsProtocol(Protocol):
         ...
 
     def _set_fullscreen_mode(self, mode: str) -> None:
+        ...
+
+    def _set_pane_nav(self, value: bool) -> None:
+        ...
+
+    def _get_focus_pane(self) -> str:
         ...
 
     def _update_section_labels(self) -> None:

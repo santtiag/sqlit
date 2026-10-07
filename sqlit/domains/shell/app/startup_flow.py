@@ -90,6 +90,7 @@ def run_on_mount(app: AppProtocol) -> None:
     app._startup_stamp("tree_refreshed")
 
     app.object_tree.focus()
+    app._set_pane_nav(True)
     app._startup_stamp("tree_focused")
     if app.object_tree.root.children:
         app.object_tree.cursor_line = 0

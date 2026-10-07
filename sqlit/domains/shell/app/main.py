@@ -167,6 +167,7 @@ class SSMSTUI(
         self._leader_pending: bool = False
         self._dialog_open: bool = False
         self._last_active_pane: str | None = None
+        self._pane_nav: bool = False
         self._query_worker: Worker[Any] | None = None
         self._query_handle: Any | None = None
         self._command_mode: bool = False
@@ -354,6 +355,7 @@ class SSMSTUI(
             count_buffer=self._count_buffer,
             cursor_column_is_foreign_key=cursor_column_is_foreign_key,
             cursor_column_is_foreign_key_target=cursor_column_is_foreign_key_target,
+            pane_nav=self._pane_nav,
         )
 
     def _debug_screen_label(self, screen: Any | None) -> str:
@@ -599,8 +601,8 @@ class SSMSTUI(
         """
         from sqlit.core.vim import VimMode
 
-        # Only in NORMAL mode with query focus
-        if ctx.focus != "query" or self.vim_mode != VimMode.NORMAL:
+        # Only in NORMAL mode with query focus (and the pane entered)
+        if ctx.focus != "query" or self.vim_mode != VimMode.NORMAL or ctx.pane_nav:
             return False
 
         # Don't intercept digits during leader pending

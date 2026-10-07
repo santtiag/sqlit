@@ -481,10 +481,21 @@ class DefaultKeymapProvider(KeymapProvider):
             # autocomplete_accept lives in the 'autocomplete' context below;
             # the query_insert context still acquires it implicitly when the
             # dropdown is visible.
-            # Navigation
-            ActionKeyDef("e", "focus_explorer", "navigation"),
-            ActionKeyDef("q", "focus_query", "navigation"),
-            ActionKeyDef("r", "focus_results", "navigation"),
+            # Navigation. The direct pane jumps are unbound by default —
+            # panes are reached through pane-navigation mode below.
+            ActionKeyDef("", "focus_explorer", "navigation"),
+            ActionKeyDef("", "focus_query", "navigation"),
+            ActionKeyDef("", "focus_results", "navigation"),
+            # Pane navigation (a pane is selected but not entered)
+            ActionKeyDef("h", "pane_left", "pane_nav"),
+            ActionKeyDef("left", "pane_left", "pane_nav", primary=False),
+            ActionKeyDef("j", "pane_down", "pane_nav"),
+            ActionKeyDef("down", "pane_down", "pane_nav", primary=False),
+            ActionKeyDef("k", "pane_up", "pane_nav"),
+            ActionKeyDef("up", "pane_up", "pane_nav", primary=False),
+            ActionKeyDef("l", "pane_right", "pane_nav"),
+            ActionKeyDef("right", "pane_right", "pane_nav", primary=False),
+            ActionKeyDef("enter", "enter_pane", "pane_nav"),
             # Query (autocomplete)
             ActionKeyDef("ctrl+j", "autocomplete_next", "autocomplete"),
             ActionKeyDef("down", "autocomplete_next", "autocomplete", primary=False),
@@ -539,6 +550,11 @@ class DefaultKeymapProvider(KeymapProvider):
             ActionKeyDef("ctrl+s", "connection_save", "connection_editor"),
             ActionKeyDef("ctrl+t", "connection_test", "connection_editor"),
             ActionKeyDef("ctrl+d", "connection_install_driver", "connection_editor"),
+            # Leave the pane for pane-navigation mode. Kept last so every
+            # other escape binding (filters, visual modes, value view) wins.
+            ActionKeyDef("escape", "exit_pane", "tree"),
+            ActionKeyDef("escape", "exit_pane", "query_normal"),
+            ActionKeyDef("escape", "exit_pane", "results"),
         ]
 
 

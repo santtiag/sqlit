@@ -38,7 +38,7 @@ async def test_cell_preview_preserves_original_value(payload: str, search: str, 
             truncated=False, elapsed_ms=0,
         )
         await pilot.pause()
-        app.results_table.focus()
+        app.action_focus_results()
         if filtered:
             await pilot.press("slash")
             assert app._results_filter_visible

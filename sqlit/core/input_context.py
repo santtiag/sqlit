@@ -40,3 +40,6 @@ class InputContext:
     # True when the column under the cursor is referenced by some other table's FK
     # (i.e. pressing the navigate-referrers key would open the picker).
     cursor_column_is_foreign_key_target: bool = False
+    # True when a pane is selected but not entered: hjkl move between panes
+    # and the pane's own bindings are inactive until enter is pressed.
+    pane_nav: bool = False
