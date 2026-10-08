@@ -22,7 +22,7 @@ class MainScreenState(State):
         self.allows("change_theme")
         self.allows("toggle_process_worker", help="Toggle process worker")
         self.allows("leader_key", key="<space>", label="Commands")
-        self.allows("show_help", key="?", label="Help")
+        self.allows("show_help")
 
     def is_active(self, app: InputContext) -> bool:
         if app.modal_open:

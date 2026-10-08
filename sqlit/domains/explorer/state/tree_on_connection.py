@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from sqlit.core.input_context import InputContext
-from sqlit.core.state_base import DisplayBinding, State, resolve_display_key
+from sqlit.core.state_base import DisplayBinding, State, hint_key, resolve_display_key
 
 
 class TreeOnConnectionState(State):
@@ -119,6 +119,14 @@ class TreeOnConnectionState(State):
                     seen.add(binding.action)
 
         return left, []
+
+    def get_hint(self, app: InputContext) -> str | None:
+        if app.has_connection and app.tree_node_connection_name == app.current_connection_name:
+            return f"Connected. <enter> expands it. {hint_key('disconnect', 'x')} disconnects."
+        return (
+            f"<enter> connects. {hint_key('edit_connection', 'e')} edits, "
+            f"{hint_key('delete_connection', 'd')} deletes, {hint_key('duplicate_connection', 'D')} duplicates."
+        )
 
     def is_active(self, app: InputContext) -> bool:
         return app.focus == "explorer" and app.tree_node_kind == "connection"

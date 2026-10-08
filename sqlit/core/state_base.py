@@ -26,6 +26,20 @@ def resolve_help_key(action_name: str) -> str | None:
     return "/".join(format_key(key) for key in keys)
 
 
+def hint_key(action_name: str, fallback: str) -> str:
+    """Display key for an action in hint text, following the active keymap."""
+    return resolve_display_key(action_name) or fallback
+
+
+def hint_menu_key(opener_action: str, menu: str, action_name: str, fallback: str) -> str:
+    """Display keys for a two-step combo (menu opener + menu entry), e.g. ``<space>o``."""
+    from sqlit.core.keymap import format_key, get_keymap
+
+    opener = resolve_display_key(opener_action)
+    key = get_keymap().leader(action_name, menu)
+    return f"{opener}{format_key(key)}" if opener and key else fallback
+
+
 class ActionResult(Enum):
     """Result of checking an action in a state."""
 
@@ -216,6 +230,12 @@ class State(ABC):
                     seen.add(binding.action)
 
         return left, right
+
+    def get_hint(self, app: InputContext) -> str | None:
+        """One-line plain-language explanation of what the keys do here."""
+        if self.parent:
+            return self.parent.get_hint(app)
+        return None
 
     @abstractmethod
     def is_active(self, app: InputContext) -> bool:

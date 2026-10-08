@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from sqlit.core.input_context import InputContext
-from sqlit.core.state_base import DisplayBinding, State, resolve_display_key
+from sqlit.core.state_base import DisplayBinding, State, hint_key, resolve_display_key
 from sqlit.core.vim import VimMode
 
 
@@ -30,7 +30,7 @@ class QueryVisualModeState(State):
         self.allows("visual_yank", label="Yank", help="Yank selection")
         self.allows("visual_delete", label="Delete", help="Delete selection")
         self.allows("visual_change", label="Change", help="Change selection")
-        self.allows("visual_execute", label="Execute", help="Execute selection")
+        self.allows("visual_execute", label="Run selection", help="Execute selection")
         # All cursor motions
         self.allows("cursor_left", help="Move cursor left")
         self.allows("cursor_right", help="Move cursor right")
@@ -91,7 +91,7 @@ class QueryVisualModeState(State):
         left.append(
             DisplayBinding(
                 key=resolve_display_key("visual_execute") or "<enter>",
-                label="Execute",
+                label="Run selection",
                 action="visual_execute",
             )
         )
@@ -105,6 +105,13 @@ class QueryVisualModeState(State):
                     seen.add(binding.action)
 
         return left, []
+
+    def get_hint(self, app: InputContext) -> str | None:
+        return (
+            f"{hint_key('visual_execute', '<enter>')} runs ONLY the selection. "
+            f"{hint_key('exit_visual_mode', '<esc>')} returns to NORMAL, "
+            f"where {hint_key('execute_query', '<enter>')} runs everything."
+        )
 
     def is_active(self, app: InputContext) -> bool:
         return app.focus == "query" and app.vim_mode == VimMode.VISUAL

@@ -172,6 +172,14 @@ class UIStateMachine:
         state = self.get_active_state(app)
         return state.get_display_bindings(app)
 
+    def get_hint(self, app: InputContext) -> str | None:
+        """One-line explanation of the current context, or None when a dialog owns the keys."""
+        if app.modal_open or app.leader_pending:
+            return None
+        if app.query_executing:
+            return f"Query running. {resolve_display_key('cancel_operation') or '<esc>'} cancels it."
+        return self.get_active_state(app).get_hint(app)
+
     def get_active_state_name(self, app: InputContext) -> str:
         """Get the name of the active state (for debugging)."""
         state = self.get_active_state(app)
@@ -224,7 +232,7 @@ class UIStateMachine:
         s.binding(k("enter_pane", "<enter>"), "Enter the selected pane")
         s.binding(k("exit_pane", "<esc>"), "Back to pane navigation")
         s.binding(leader_key, "Open command menu")
-        s.binding(k("show_help", "?"), "Show this help")
+        s.binding(f"{leader_key}{lk('show_help', 'leader', 'h')}", "Show this help")
         sections.append(s)
 
         # EXPLORER
@@ -255,8 +263,9 @@ class UIStateMachine:
         s.binding(k("delete_line_end", "D"), "Delete to line end")
         s.binding(f"{k('execute_query', '<enter>')}/{g_key}{lk('execute_query', 'g', 'r')}", "Execute query")
         s.binding(f"{g_key}{lk('execute_query_atomic', 'g', 't')}", "Execute as transaction")
-        s.binding(k("show_history", "<backspace>"), "Query history")
-        s.binding(k("new_query", "N"), "New query (clear)")
+        s.binding(f"{leader_key}{lk('show_history', 'leader', 'r')}", "Query history")
+        s.binding(f"{leader_key}{lk('new_query', 'leader', 'n')}", "New query (clear)")
+        s.binding(f"{leader_key}{lk('edit_query_in_editor', 'leader', 'o')}", "Edit in Neovim / $EDITOR")
         s.binding(f"{leader_key}{lk('format_query', 'leader', 'p')}", "Format query")
         s.binding(k("undo", "u"), "Undo")
         s.binding(k("redo", "^r"), "Redo")

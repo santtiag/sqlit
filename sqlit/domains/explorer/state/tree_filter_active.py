@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from sqlit.core.input_context import InputContext
-from sqlit.core.state_base import BlockingState, DisplayBinding, resolve_display_key
+from sqlit.core.state_base import BlockingState, DisplayBinding, hint_key, resolve_display_key
 
 
 class TreeFilterActiveState(BlockingState):
@@ -25,6 +25,12 @@ class TreeFilterActiveState(BlockingState):
             DisplayBinding(key=accept_key, label="Select", action="tree_filter_accept"),
         ]
         return left, []
+
+    def get_hint(self, app: InputContext) -> str | None:
+        return (
+            f"Type to filter. {hint_key('tree_filter_accept', '<enter>')} keeps the filter, "
+            f"{hint_key('tree_filter_close', '<esc>')} clears it."
+        )
 
     def is_active(self, app: InputContext) -> bool:
         return app.focus == "explorer" and app.tree_filter_active

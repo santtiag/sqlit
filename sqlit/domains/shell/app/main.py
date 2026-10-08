@@ -1206,6 +1206,7 @@ class SSMSTUI(
 
             yield Static("", id="idle-scheduler-bar")
             yield Static("Not connected", id="status-bar")
+            yield Static("", id="hint-bar")
 
         yield ContextFooter()
         self._startup_stamp("compose_end")

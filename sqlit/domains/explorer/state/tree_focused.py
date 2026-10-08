@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from sqlit.core.input_context import InputContext
-from sqlit.core.state_base import State
+from sqlit.core.state_base import State, hint_key
 
 
 class TreeFocusedState(State):
@@ -25,6 +25,13 @@ class TreeFocusedState(State):
             lambda app: app.tree_node_kind is not None,
             label="Visual",
             help="Enter visual selection mode",
+        )
+
+    def get_hint(self, app: InputContext) -> str | None:
+        return (
+            f"{hint_key('tree_cursor_down', 'j')}/{hint_key('tree_cursor_up', 'k')} move. <enter> expands. "
+            f"{hint_key('tree_filter', '/')} filters. "
+            f"{hint_key('exit_pane', '<esc>')} goes back to pane navigation."
         )
 
     def is_active(self, app: InputContext) -> bool:

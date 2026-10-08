@@ -449,19 +449,19 @@ class TestConflicts:
         assert manager.load_error is None
 
     def test_ancestor_shadow_is_caught(self, tmp_path: Path):
-        # Default: '?' → show_help in 'global'. Binding '?' in
-        # 'query_normal' to a different action shadows show_help at
-        # runtime (descendant context wins). Must be flagged so the user
-        # discovers it in the UI, not via the silent loss of '?' help in
-        # the query editor.
+        # Default: ':' → enter_command_mode in 'global'. Binding ':' in
+        # 'query_normal' to a different action shadows it at runtime
+        # (descendant context wins). Must be flagged so the user
+        # discovers it in the UI, not via the silent loss of command
+        # mode in the query editor.
         manager = _load(
             tmp_path,
             "shadow",
-            {"keymap": {"action_keys": {"query_normal": {"enter_insert_mode": "?"}}}},
+            {"keymap": {"action_keys": {"query_normal": {"enter_insert_mode": ":"}}}},
         )
         assert manager.load_error is not None
         assert "shadow" in manager.load_error.lower()
-        assert "question_mark" in manager.load_error
+        assert "colon" in manager.load_error
         assert "query_normal" in manager.load_error
         assert "global" in manager.load_error
 

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from sqlit.core.input_context import InputContext
-from sqlit.core.state_base import DisplayBinding, State
+from sqlit.core.state_base import DisplayBinding, State, hint_key
 
 
 class ValueViewActiveState(State):
@@ -30,6 +30,9 @@ class ValueViewActiveState(State):
             DisplayBinding(key="y", label="Copy", action="copy_value_view"),
         ]
         return left, []
+
+    def get_hint(self, app: InputContext) -> str | None:
+        return f"{hint_key('copy_value_view', 'y')} copies the value. <esc> closes the view."
 
     def is_active(self, app: InputContext) -> bool:
         return app.value_view_active

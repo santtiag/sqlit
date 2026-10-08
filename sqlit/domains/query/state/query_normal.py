@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from sqlit.core.input_context import InputContext
-from sqlit.core.state_base import DisplayBinding, State, resolve_display_key
+from sqlit.core.state_base import DisplayBinding, State, hint_key, hint_menu_key, resolve_display_key
 from sqlit.core.vim import VimMode
 
 
@@ -15,14 +15,14 @@ class QueryNormalModeState(State):
 
     def _setup_actions(self) -> None:
         self.allows("enter_insert_mode", label="Insert Mode", help="Enter INSERT mode")
-        self.allows("execute_query", label="Execute", help="Execute query")
+        self.allows("execute_query", label="Run all", help="Execute query")
         self.allows("execute_single_statement", label="Run Statement", help="Execute statement at cursor")
         self.allows("delete_leader_key", label="Delete", help="Delete (menu)")
         self.allows("yank_leader_key", label="Copy", help="Copy (menu)")
         self.allows("change_leader_key", label="Change", help="Change (menu)")
         self.allows("g_leader_key", label="Go", help="Go motions (menu)")
-        self.allows("new_query", label="New", help="New query (clear all)")
-        self.allows("show_history", label="History", help="Query history")
+        self.allows("new_query", help="New query (clear all)")
+        self.allows("show_history", help="Query history")
         self.allows(
             "edit_query_in_editor",
             help="Open current query in your terminal editor",
@@ -100,7 +100,7 @@ class QueryNormalModeState(State):
         left.append(
             DisplayBinding(
                 key=resolve_display_key("execute_query") or "enter",
-                label="Execute",
+                label="Run all",
                 action="execute_query",
             )
         )
@@ -130,20 +130,12 @@ class QueryNormalModeState(State):
 
         left.append(
             DisplayBinding(
-                key=resolve_display_key("show_history") or "H",
-                label="History",
-                action="show_history",
+                key=hint_menu_key("leader_key", "leader", "edit_query_in_editor", "<space>o"),
+                label="Neovim",
+                action="edit_query_in_editor",
             )
         )
-        seen.add("show_history")
-        left.append(
-            DisplayBinding(
-                key=resolve_display_key("new_query") or "N",
-                label="New",
-                action="new_query",
-            )
-        )
-        seen.add("new_query")
+        seen.add("edit_query_in_editor")
 
         if self.parent:
             parent_left, _ = self.parent.get_display_bindings(app)
@@ -153,6 +145,15 @@ class QueryNormalModeState(State):
                     seen.add(binding.action)
 
         return left, []
+
+    def get_hint(self, app: InputContext) -> str | None:
+        run_statement = hint_menu_key("g_leader_key", "g", "execute_single_statement", "gs")
+        editor = hint_menu_key("leader_key", "leader", "edit_query_in_editor", "<space>o")
+        return (
+            f"{hint_key('execute_query', '<enter>')} runs the WHOLE editor. "
+            f"{run_statement} runs only the statement under the cursor. "
+            f"{editor} opens it in Neovim."
+        )
 
     def is_active(self, app: InputContext) -> bool:
         return app.focus == "query" and app.vim_mode == VimMode.NORMAL

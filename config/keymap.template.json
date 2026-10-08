@@ -4,7 +4,6 @@
       "global": {
         "leader_key": "space",
         "cancel_operation": "escape",
-        "show_help": "?",
         "enter_command_mode": [
           ":",
           "shift+;"
@@ -85,8 +84,6 @@
         "yank_leader_key": "y",
         "change_leader_key": "c",
         "g_leader_key": "g",
-        "show_history": "backspace",
-        "new_query": "N",
         "delete_leader_key": "d",
         "change_line_end_motion": "C",
         "delete_line_end": "D",
@@ -262,6 +259,8 @@
         "cancel_operation": "z",
         "change_theme": "t",
         "edit_query_in_editor": "o",
+        "new_query": "n",
+        "show_history": "r",
         "format_query": "p",
         "show_help": "h",
         "telescope": "space",

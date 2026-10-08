@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from sqlit.core.input_context import InputContext
-from sqlit.core.state_base import State
+from sqlit.core.state_base import State, hint_key
 
 
 class PaneNavState(State):
@@ -18,6 +18,13 @@ class PaneNavState(State):
         self.allows("pane_up", help="Pane above")
         self.allows("pane_right", help="Pane to the right")
         self.allows("enter_pane", label="Enter pane", help="Enter the selected pane")
+
+    def get_hint(self, app: InputContext) -> str | None:
+        keys = "/".join(
+            hint_key(action, fallback)
+            for action, fallback in (("pane_left", "h"), ("pane_down", "j"), ("pane_up", "k"), ("pane_right", "l"))
+        )
+        return f"{keys} switch panes. {hint_key('enter_pane', '<enter>')} goes into the selected pane."
 
     def is_active(self, app: InputContext) -> bool:
         return app.pane_nav

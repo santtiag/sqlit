@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from sqlit.core.input_context import InputContext
-from sqlit.core.state_base import DisplayBinding, State, resolve_display_key, resolve_help_key
+from sqlit.core.state_base import DisplayBinding, State, hint_key, resolve_display_key, resolve_help_key
 from sqlit.core.vim import VimMode
 
 
@@ -15,7 +15,7 @@ class QueryInsertModeState(State):
 
     def _setup_actions(self) -> None:
         self.allows("exit_insert_mode", label="Normal Mode", help="Exit to NORMAL mode")
-        self.allows("execute_query_insert", label="Execute", help="Execute query (stay INSERT)")
+        self.allows("execute_query_insert", label="Run all", help="Execute query (stay INSERT)")
         self.allows("autocomplete_accept", help="Accept autocomplete")
         self.allows("quit")
         # Clipboard actions
@@ -47,7 +47,7 @@ class QueryInsertModeState(State):
             ),
             DisplayBinding(
                 key=execute_key,
-                label="Execute",
+                label="Run all",
                 action="execute_query_insert",
             ),
             DisplayBinding(
@@ -57,6 +57,12 @@ class QueryInsertModeState(State):
             ),
         ]
         return left, []
+
+    def get_hint(self, app: InputContext) -> str | None:
+        return (
+            f"{hint_key('execute_query_insert', '^enter')} runs the whole editor without leaving INSERT. "
+            f"{hint_key('exit_insert_mode', '<esc>')} returns to NORMAL."
+        )
 
     def is_active(self, app: InputContext) -> bool:
         if app.focus != "query" or app.vim_mode != VimMode.INSERT:

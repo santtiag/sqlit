@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from sqlit.core.input_context import InputContext
-from sqlit.core.state_base import DisplayBinding, State, resolve_display_key
+from sqlit.core.state_base import DisplayBinding, State, hint_key, resolve_display_key
 
 
 class TreeMultiSelectState(State):
@@ -67,6 +67,12 @@ class TreeMultiSelectState(State):
                     seen.add(binding.action)
 
         return left, []
+
+    def get_hint(self, app: InputContext) -> str | None:
+        return (
+            f"{hint_key('move_connection_to_folder', 'm')} moves the selected connections to a folder. "
+            f"{hint_key('clear_connection_selection', '<esc>')} clears the selection."
+        )
 
     def is_active(self, app: InputContext) -> bool:
         return app.focus == "explorer" and app.tree_multi_select_active

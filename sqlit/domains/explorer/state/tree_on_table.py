@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from sqlit.core.input_context import InputContext
-from sqlit.core.state_base import DisplayBinding, State, resolve_display_key
+from sqlit.core.state_base import DisplayBinding, State, hint_key, resolve_display_key
 
 
 class TreeOnTableState(State):
@@ -45,6 +45,9 @@ class TreeOnTableState(State):
                     seen.add(binding.action)
 
         return left, []
+
+    def get_hint(self, app: InputContext) -> str | None:
+        return f"{hint_key('select_table', 's')} runs a SELECT on this table. <enter> shows its columns."
 
     def is_active(self, app: InputContext) -> bool:
         return app.focus == "explorer" and app.tree_node_kind in ("table", "view")

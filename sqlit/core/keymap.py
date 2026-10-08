@@ -211,6 +211,8 @@ class DefaultKeymapProvider(KeymapProvider):
                 "Actions",
                 guard="query_focused",
             ),
+            LeaderCommandDef("n", "new_query", "New Query", "Actions"),
+            LeaderCommandDef("r", "show_history", "Query History", "Actions", guard="has_connection"),
             LeaderCommandDef("q", "query_library", "Query Library", "Actions"),
             LeaderCommandDef("s", "save_query", "Save Query", "Actions"),
             LeaderCommandDef("S", "save_query_as", "Save Query As", "Actions"),
@@ -380,7 +382,9 @@ class DefaultKeymapProvider(KeymapProvider):
             # the `:q` command. Keeping it un-rebindable avoids the footgun
             # of a user accidentally locking themselves out of the exit key.
             ActionKeyDef("escape", "cancel_operation", "global"),
-            ActionKeyDef("question_mark", "show_help", "global"),
+            # Unbound by default: "?" is vim's backward search. Help lives in
+            # the leader menu and the :help command.
+            ActionKeyDef("", "show_help", "global"),
             ActionKeyDef("colon", "enter_command_mode", "global"),
             ActionKeyDef("shift+semicolon", "enter_command_mode", "global", primary=False),
             ActionKeyDef(":", "enter_command_mode", "global", primary=False),
@@ -394,8 +398,10 @@ class DefaultKeymapProvider(KeymapProvider):
             ActionKeyDef("y", "yank_leader_key", "query_normal"),
             ActionKeyDef("c", "change_leader_key", "query_normal"),
             ActionKeyDef("g", "g_leader_key", "query_normal"),
-            ActionKeyDef("backspace", "show_history", "query_normal"),
-            ActionKeyDef("N", "new_query", "query_normal"),
+            # Unbound by default so vim keys stay vim keys; both live in the
+            # leader menu.
+            ActionKeyDef("", "show_history", "query_normal"),
+            ActionKeyDef("", "new_query", "query_normal"),
             ActionKeyDef("d", "delete_leader_key", "query_normal"),
             ActionKeyDef("C", "change_line_end_motion", "query_normal"),
             ActionKeyDef("D", "delete_line_end", "query_normal"),

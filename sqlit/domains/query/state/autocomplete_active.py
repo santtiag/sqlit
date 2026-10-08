@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from sqlit.core.input_context import InputContext
-from sqlit.core.state_base import DisplayBinding, State, resolve_display_key
+from sqlit.core.state_base import DisplayBinding, State, hint_key, resolve_display_key
 from sqlit.core.vim import VimMode
 
 
@@ -44,6 +44,13 @@ class AutocompleteActiveState(State):
             DisplayBinding(key=close_key, label="Close + Normal", action="autocomplete_close"),
         ]
         return left, []
+
+    def get_hint(self, app: InputContext) -> str | None:
+        return (
+            f"{hint_key('autocomplete_accept', '<tab>')} accepts the suggestion. "
+            f"{hint_key('autocomplete_next', '^j')}/{hint_key('autocomplete_prev', '^k')} move through the list. "
+            f"{hint_key('autocomplete_close', '<esc>')} closes it."
+        )
 
     def is_active(self, app: InputContext) -> bool:
         return app.focus == "query" and app.vim_mode == VimMode.INSERT and app.autocomplete_visible

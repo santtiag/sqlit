@@ -41,6 +41,14 @@ def _reset_mock_docker_containers():
     set_mock_docker_containers(None)
 
 
+@pytest.fixture(autouse=True)
+def _no_host_ghostty_theme(monkeypatch, tmp_path):
+    """Keep the developer's own Ghostty config from leaking into tests."""
+    from sqlit.domains.shell.app import ghostty
+
+    monkeypatch.setattr(ghostty, "GHOSTTY_CONFIG_DIR", tmp_path / "no-ghostty")
+
+
 def pytest_addoption(parser):
     """Add shared CLI options for integration tests."""
     try:

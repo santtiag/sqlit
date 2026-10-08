@@ -27,6 +27,7 @@ LIGHT_THEMES = {
 # Dark themes
 DARK_THEMES = {
     "textual-ansi": "Terminal Default",
+    "ghostty": "Ghostty (terminal sync)",
     "sqlit": "Sqlit",
     "textual-dark": "Textual Dark",
     "nord": "Nord",

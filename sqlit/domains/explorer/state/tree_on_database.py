@@ -38,5 +38,8 @@ class TreeOnDatabaseState(State):
 
         return left, []
 
+    def get_hint(self, app: InputContext) -> str | None:
+        return "<enter> makes this the active database for your queries."
+
     def is_active(self, app: InputContext) -> bool:
         return app.focus == "explorer" and app.tree_node_kind == "database"

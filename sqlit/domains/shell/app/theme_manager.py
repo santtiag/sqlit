@@ -19,6 +19,7 @@ from sqlit.domains.shell.store.settings import SettingsStore
 from sqlit.shared.core.protocols import SettingsStoreProtocol
 from sqlit.shared.core.store import CONFIG_DIR
 
+from .ghostty import build_ghostty_theme, read_ghostty_colors
 from .omarchy import (
     DEFAULT_THEME,
     get_current_theme_name,
@@ -69,6 +70,10 @@ class ThemeAppProtocol(Protocol):
 
     def _apply_theme_safe(self, theme_name: str) -> None: ...
 
+    def _invalidate_css(self) -> None: ...
+
+    def refresh_css(self, animate: bool = True) -> None: ...
+
     def set_interval(
         self,
         interval: float,
@@ -109,6 +114,7 @@ class ThemeManager:
         self._light_theme_names: set[str] = set(LIGHT_THEME_NAMES)
         self._omarchy_theme_watcher: Timer | None = None
         self._omarchy_last_theme_name: str | None = None
+        self._ghostty_colors: dict[str, str] | None = None
 
     def register_builtin_themes(self) -> None:
         for theme in SQLIT_THEMES:
@@ -121,6 +127,7 @@ class ThemeManager:
     def initialize(self) -> dict:
         settings = self._settings_store.load_all()
         self.load_custom_themes(settings)
+        self._init_ghostty_theme()
         self._init_omarchy_theme(settings)
         self.apply_textarea_theme(self._app.theme)
         return settings
@@ -130,6 +137,30 @@ class ThemeManager:
         settings["theme"] = new_theme
         self._settings_store.save_all(settings)
         self.apply_textarea_theme(new_theme)
+
+    def _init_ghostty_theme(self) -> None:
+        self.sync_ghostty_theme()
+        if self._ghostty_colors is not None:
+            # Follow the terminal when its theme is regenerated while sqlit runs.
+            self._app.set_interval(2.0, self.sync_ghostty_theme)
+
+    def sync_ghostty_theme(self) -> None:
+        """(Re)register the "ghostty" theme when the terminal's colors change."""
+        colors = read_ghostty_colors()
+        if colors is None or colors == self._ghostty_colors:
+            return
+        self._ghostty_colors = colors
+        theme = build_ghostty_theme(colors)
+        self._app.register_theme(theme)
+        if theme.dark:
+            self._light_theme_names.discard(theme.name)
+        else:
+            self._light_theme_names.add(theme.name)
+        if self._app.theme == theme.name:
+            # Same theme name, new colors: re-apply without touching settings.
+            self._app._invalidate_css()
+            self._app.refresh_css()
+            self.apply_textarea_theme(theme.name)
 
     def apply_omarchy_theme(self) -> None:
         matched_theme = get_matching_textual_theme(set(self._app.available_themes))

@@ -851,6 +851,7 @@ class QueryExecutionMixin(ProcessWorkerLifecycleMixin):
         self.push_screen(EditorPickerScreen(), on_pick)
 
     def _run_external_editor(self: QueryMixinHost, editor_cmd: str) -> None:
+        import json
         import os
         import subprocess
         import tempfile
@@ -864,13 +865,25 @@ class QueryExecutionMixin(ProcessWorkerLifecycleMixin):
             prefix=f"sqlit-edit-{timestamp}-",
             suffix=".sql",
         )
+        # Tables/views/columns sqlit already knows, so the editor can offer
+        # them as completions (it reads the path from $SQLIT_SCHEMA_FILE).
+        schema_fd, schema_path = tempfile.mkstemp(
+            prefix=f"sqlit-schema-{timestamp}-",
+            suffix=".json",
+        )
         try:
             with os.fdopen(fd, "w", encoding="utf-8") as f:
                 f.write(original)
+            with os.fdopen(schema_fd, "w", encoding="utf-8") as f:
+                json.dump(getattr(self, "_schema_cache", {}), f, default=str)
             argv = build_editor_argv(editor_cmd) + [path_str]
             try:
                 with self.suspend():
-                    subprocess.run(argv, check=False)
+                    subprocess.run(
+                        argv,
+                        check=False,
+                        env={**os.environ, "SQLIT_SCHEMA_FILE": schema_path},
+                    )
             except Exception as exc:
                 self.notify(f"Failed to launch editor '{editor_cmd}': {exc}", severity="error")
                 return
@@ -882,10 +895,11 @@ class QueryExecutionMixin(ProcessWorkerLifecycleMixin):
                 self.notify(f"Could not read edited file: {exc}", severity="error")
                 return
         finally:
-            try:
-                os.unlink(path_str)
-            except OSError:
-                pass
+            for temp_path in (path_str, schema_path):
+                try:
+                    os.unlink(temp_path)
+                except OSError:
+                    pass
 
         # Trim a single trailing newline that most editors add on save.
         if edited.endswith("\n"):

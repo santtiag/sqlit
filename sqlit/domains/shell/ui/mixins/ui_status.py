@@ -478,6 +478,14 @@ class UIStatusMixin:
 
         left_display, right_display = self._state_machine.get_display_bindings(ctx)
 
+        try:
+            from textual.widgets import Static
+
+            hint = self._state_machine.get_hint(ctx)
+            self.query_one("#hint-bar", Static).update(f"▸ {escape(hint)}" if hint else "")
+        except Exception:
+            pass
+
         left_bindings = [KeyBinding(b.key, b.label, b.action) for b in left_display]
         right_bindings = [KeyBinding(b.key, b.label, b.action) for b in right_display]
 

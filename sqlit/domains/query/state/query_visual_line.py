@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from sqlit.core.input_context import InputContext
-from sqlit.core.state_base import DisplayBinding, State, resolve_display_key
+from sqlit.core.state_base import DisplayBinding, State, hint_key, resolve_display_key
 from sqlit.core.vim import VimMode
 
 
@@ -47,7 +47,7 @@ class QueryVisualLineModeState(State):
         # Execute selected lines
         self.allows(
             "visual_line_execute",
-            label="Execute",
+            label="Run lines",
             help="Execute selected lines",
         )
         # Vertical cursor movement
@@ -96,7 +96,7 @@ class QueryVisualLineModeState(State):
         left.append(
             DisplayBinding(
                 key=resolve_display_key("visual_line_execute") or "<enter>",
-                label="Execute",
+                label="Run lines",
                 action="visual_line_execute",
             )
         )
@@ -110,6 +110,13 @@ class QueryVisualLineModeState(State):
                     seen.add(binding.action)
 
         return left, []
+
+    def get_hint(self, app: InputContext) -> str | None:
+        return (
+            f"{hint_key('visual_line_execute', '<enter>')} runs ONLY the selected lines. "
+            f"{hint_key('exit_visual_line_mode', '<esc>')} returns to NORMAL, "
+            f"where {hint_key('execute_query', '<enter>')} runs everything."
+        )
 
     def is_active(self, app: InputContext) -> bool:
         return app.focus == "query" and app.vim_mode == VimMode.VISUAL_LINE

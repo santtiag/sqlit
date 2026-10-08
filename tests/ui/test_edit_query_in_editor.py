@@ -74,6 +74,40 @@ class TestEditQueryInEditor:
             assert app.query_input.text == "SELECT 2 FROM users"
 
     @pytest.mark.asyncio
+    async def test_editor_receives_schema_file(self):
+        """The editor gets $SQLIT_SCHEMA_FILE pointing at sqlit's schema cache,
+        and the file is removed once the editor exits."""
+        import json
+
+        app = _make_app(settings={"theme": "tokyo-night", "preferred_editor": "nvim"})
+        seen: dict = {}
+
+        def _run(argv, *args, **kwargs):
+            schema_path = Path(kwargs["env"]["SQLIT_SCHEMA_FILE"])
+            seen["path"] = schema_path
+            seen["schema"] = json.loads(schema_path.read_text(encoding="utf-8"))
+
+        async with app.run_test(size=(120, 40)) as pilot:
+            app._schema_cache = {
+                "tables": ["users"],
+                "views": ["active_users"],
+                "columns": {"users": ["id", "email"]},
+                "procedures": [],
+            }
+            await pilot.pause()
+
+            with patch(
+                "sqlit.domains.query.app.editor.shutil.which",
+                side_effect=lambda cmd: "/usr/bin/nvim" if cmd == "nvim" else None,
+            ), patch("subprocess.run", side_effect=_run), patch.object(app, "suspend", _noop_suspend):
+                app.action_edit_query_in_editor()
+                await pilot.pause()
+
+        assert seen["schema"]["tables"] == ["users"]
+        assert seen["schema"]["columns"] == {"users": ["id", "email"]}
+        assert not seen["path"].exists()
+
+    @pytest.mark.asyncio
     async def test_picker_opens_when_no_preference_but_editor_detected(self):
         """Empty settings + no env editor + at least one installed editor → picker pops up."""
         from sqlit.domains.query.ui.screens import EditorPickerScreen

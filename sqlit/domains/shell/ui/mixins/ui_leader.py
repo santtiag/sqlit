@@ -106,6 +106,12 @@ class UILeaderMixin:
     def action_leader_edit_query_in_editor(self: UINavigationMixinHost) -> None:
         self._execute_leader_command("edit_query_in_editor")
 
+    def action_leader_new_query(self: UINavigationMixinHost) -> None:
+        self._execute_leader_command("new_query")
+
+    def action_leader_show_history(self: UINavigationMixinHost) -> None:
+        self._execute_leader_command("show_history")
+
     def action_leader_query_library(self: UINavigationMixinHost) -> None:
         self._execute_leader_command("query_library")
 

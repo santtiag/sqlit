@@ -252,6 +252,13 @@
         padding: 0 1;
     }
 
+    #hint-bar {
+        height: 1;
+        color: $text-muted;
+        background: $surface-darken-1;
+        padding: 0 1;
+    }
+
     #idle-scheduler-bar {
         height: 1;
         background: $primary-darken-3;

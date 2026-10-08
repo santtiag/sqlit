@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from sqlit.core.input_context import InputContext
-from sqlit.core.state_base import DisplayBinding, State, resolve_display_key
+from sqlit.core.state_base import DisplayBinding, State, hint_key, resolve_display_key
 
 
 class ResultsFocusedState(State):
@@ -174,6 +174,24 @@ class ResultsFocusedState(State):
                     seen.add(binding.action)
 
         return left, []
+
+    def get_hint(self, app: InputContext) -> str | None:
+        if not app.has_results:
+            return "Run a query to see its rows here."
+        if app.last_result_is_error:
+            return (
+                f"The query failed. {hint_key('view_cell', 'v')} shows the full error, "
+                f"{hint_key('results_yank_leader_key', 'y')} copies it."
+            )
+        keys = "/".join(
+            hint_key(f"results_cursor_{direction}", fallback)
+            for direction, fallback in (("left", "h"), ("down", "j"), ("up", "k"), ("right", "l"))
+        )
+        return (
+            f"{keys} move between cells. {hint_key('view_cell', 'v')} previews a cell, "
+            f"{hint_key('results_yank_leader_key', 'y')} opens the copy menu, "
+            f"{hint_key('results_filter', '/')} filters rows."
+        )
 
     def is_active(self, app: InputContext) -> bool:
         return app.focus == "results"

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from sqlit.core.input_context import InputContext
-from sqlit.core.state_base import DisplayBinding, State, resolve_display_key
+from sqlit.core.state_base import DisplayBinding, State, hint_key, resolve_display_key
 
 
 class TreeVisualModeState(State):
@@ -80,6 +80,12 @@ class TreeVisualModeState(State):
                     seen.add(binding.action)
 
         return left, []
+
+    def get_hint(self, app: InputContext) -> str | None:
+        return (
+            f"{hint_key('tree_cursor_down', 'j')}/{hint_key('tree_cursor_up', 'k')} extend the selection. "
+            f"{hint_key('exit_tree_visual_mode', '<esc>')} leaves visual mode."
+        )
 
     def is_active(self, app: InputContext) -> bool:
         return app.focus == "explorer" and app.tree_visual_mode_active
